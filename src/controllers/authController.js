@@ -8,7 +8,7 @@ const sendEmail = require("../utils/sendEmail");
 
 router.post("/register", async (req, res) => {
   try {
-    let ExitingUser = await User.findOne({ email: req.body.email });
+    let ExitingUser = await User.findOne({ mobile: req.body.mobile });
     if (ExitingUser) {
       return res.status(404).send("User already exists");
     }
@@ -17,9 +17,8 @@ router.post("/register", async (req, res) => {
     const hashedPassword = await bcrypt.hash(req.body.password, salt);
     const newUser = {
       name: req.body.name,
-      email: req.body.email,
+      mobile: req.body.mobile,
       password: hashedPassword,
-      role: req.body.role,
     };
     const user = await User.create(newUser);
     console.log("Sucessfully Regsiter");
@@ -33,9 +32,9 @@ router.post("/register", async (req, res) => {
 
 router.post("/login", async (req, res) => {
   try {
-    let user = await User.findOne({ email: req.body.email });
+    let user = await User.findOne({ mobile: req.body.mobile });
     if (!user) {
-      return res.status(404).send("emailId is not registered");
+      return res.status(404).send("Mobile Number is not registered");
     }
     let IsValidPassword = await bcrypt.compare(
       req.body.password,
@@ -44,7 +43,7 @@ router.post("/login", async (req, res) => {
     if (!IsValidPassword) {
       return res.status(404).send("Invalid password");
     }
-    await sendEmail(req.body.email);
+    await sendEmail(req.body.mobile);
     console.log("Sucessfully Login");
     return res.status(200).send(user);
   } catch (err) {
